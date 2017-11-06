@@ -1,11 +1,11 @@
 package RedHatDev;
 
-import RedHatDev.controllers.MineSweeper;
+import RedHatDev.controllers.RequestHandler;
 
 public class App {
 
     public static void main(String[] args) {
-        MineSweeper mineSweeper = new MineSweeper();
-        mineSweeper.run();
+        RequestHandler requestHandler = new RequestHandler();
+        requestHandler.run();
     }
 }

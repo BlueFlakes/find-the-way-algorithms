@@ -1,6 +1,6 @@
 package RedHatDev.models;
 
-import RedHatDev.exceptions.IndexOutOfBoundsException;
+import RedHatDev.exceptions.CustomIndexOutOfBoundsException;
 
 import java.util.stream.IntStream;
 
@@ -11,7 +11,7 @@ public class NearbyElementsMap {
         this.map = map;
     }
 
-    public int[] nearby(final int x, final int y, final int range) throws IndexOutOfBoundsException {
+    public int[] nearby(final int x, final int y, final int range) throws CustomIndexOutOfBoundsException {
         isThereAnExpectedRow(x);
 
         int lowerBand = y - range - 1;
@@ -24,8 +24,8 @@ public class NearbyElementsMap {
                         .toArray();
     }
 
-    private void isThereAnExpectedRow(int x) throws IndexOutOfBoundsException {
+    private void isThereAnExpectedRow(int x) throws CustomIndexOutOfBoundsException {
         if (x > this.map.length - 1)
-            throw new IndexOutOfBoundsException("Requested row out of available array bounds.");
+            throw new CustomIndexOutOfBoundsException("Requested row out of available array bounds.");
     }
 }
