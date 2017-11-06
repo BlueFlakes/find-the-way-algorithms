@@ -21,7 +21,7 @@ public class NearbyElements {
         try {
             userInterface.println("For: x = 0, y = 2, range = 2");
             userInterface.println(Arrays.toString(map.nearby(0,2,2)));
-            
+
         } catch (CustomIndexOutOfBoundsException e) {
             userInterface.println(e.getMessage());
         }
