@@ -2,10 +2,12 @@ package RedHatDev.controllers;
 
 import RedHatDev.exceptions.CustomIndexOutOfBoundsException;
 import RedHatDev.models.NearbyElementsMap;
+import RedHatDev.views.UserInterface;
 
 import java.util.Arrays;
 
 public class NearbyElements {
+    private UserInterface userInterface = new UserInterface();
 
     public void run() {
         int[][] multi = new int[][]{
@@ -17,9 +19,11 @@ public class NearbyElements {
         NearbyElementsMap map = new NearbyElementsMap(multi);
 
         try {
-            System.out.println(Arrays.toString(map.nearby(0,2,2)));
+            userInterface.println("For: x = 0, y = 2, range = 2");
+            userInterface.println(Arrays.toString(map.nearby(0,2,2)));
+            
         } catch (CustomIndexOutOfBoundsException e) {
-            System.out.println(e.getMessage());
+            userInterface.println(e.getMessage());
         }
 
     }
