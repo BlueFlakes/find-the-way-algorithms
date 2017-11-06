@@ -12,11 +12,6 @@ public class MineSweeper {
     private GameMapGenerator mapGenerator = new GameMapGenerator();
     private UserInterface userInterface = new UserInterface();
 
-    public static void main(String[] args) {
-        MineSweeper mineSweeper = new MineSweeper();
-        mineSweeper.run();
-    }
-
     public void run() {
         String message = "Please provide size(~as positive int) for gameboard: ";
 
@@ -26,7 +21,7 @@ public class MineSweeper {
                      .run();
     }
 
-    public void start(int mapSize) {
+    private void start(int mapSize) {
         if (mapSize < 0)
             throw new IllegalStateException("Unacceptable input delivered.");
 
