@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 public class Point {
-    private final static List<List<Integer>> winningPatterns = new ArrayList<>();
+    private final static List<List<Integer>> correctPatterns = new ArrayList<>();
     private Integer x;
     private Integer y;
 
     static {
-        winningPatterns.add(Arrays.asList(0, 0));
-        winningPatterns.add(Arrays.asList(1, 0));
-        winningPatterns.add(Arrays.asList(0, 1));
-        winningPatterns.add(Arrays.asList(1, 1));
+        correctPatterns.add(Arrays.asList(1, 0));
+        correctPatterns.add(Arrays.asList(0, 1));
+        correctPatterns.add(Arrays.asList(1, 1));
     }
 
     public Point(Integer x, Integer y) {
@@ -41,16 +39,15 @@ public class Point {
     }
 
     private boolean isPointValidToCount(char[][] map, int x, int y) {
-        BiPredicate<Integer, Integer> checkIsNotMyPosition = (i, j) -> !(this.x.equals(i) && this.y.equals(j));
         BiPredicate<Integer, Integer> checkIsPointABomb = (i, j) -> map[i][j] == '*';
 
-        return checkIsBombClose(x, y) && checkIsNotMyPosition.test(x, y) && checkIsPointABomb.test(x, y);
+        return checkIsBombCloseEnough(x, y) && checkIsPointABomb.test(x, y);
     }
 
-    private boolean checkIsBombClose(int xPos, int yPos) {
+    private boolean checkIsBombCloseEnough(int xPos, int yPos) {
         int xDiff = Math.abs(this.x - xPos);
         int yDiff = Math.abs(this.y - yPos);
 
-        return winningPatterns.contains(Arrays.asList(xDiff, yDiff));
+        return correctPatterns.contains(Arrays.asList(xDiff, yDiff));
     }
 }

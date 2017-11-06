@@ -1,10 +1,7 @@
 package RedHatDev.models;
 
-import RedHatDev.views.UserInterface;
-
 import java.util.Random;
 import java.util.function.IntSupplier;
-import java.util.stream.IntStream;
 
 public class GameMapGenerator {
 
