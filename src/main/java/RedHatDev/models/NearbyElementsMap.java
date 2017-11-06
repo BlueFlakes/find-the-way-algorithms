@@ -14,12 +14,12 @@ public class NearbyElementsMap {
     public int[] nearby(final int x, final int y, final int range) throws CustomIndexOutOfBoundsException {
         isThereAnExpectedRow(x);
 
-        int lowerBand = y - range - 1;
-        int upperBand = y + range + 1;
+        int lowerBound = y - range - 1;
+        int upperBound = y + range + 1;
         int rowRange = this.map[x].length;
 
         return IntStream.range(0, rowRange)
-                        .filter(i -> i > lowerBand && i < upperBand && i != y)
+                        .filter(i -> i > lowerBound && i < upperBound && i != y)
                         .map(i -> this.map[x][i])
                         .toArray();
     }

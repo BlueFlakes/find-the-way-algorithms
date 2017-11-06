@@ -37,6 +37,7 @@ public class RequestHandler {
                 break;
 
             case 3:
+                runNumberFactorization();
                 break;
         }
     }
@@ -52,8 +53,13 @@ public class RequestHandler {
         nearbyElements.run();
     }
 
+    private void runNumberFactorization() {
+        NumberFactorizationController controller = new NumberFactorizationController();
+        controller.run();
+    }
+
     private void showAvailablePossibilities() {
-        final String[] menu = new String[] {"Show MineSweeper", "Show nearby elements"};
+        final String[] menu = new String[] {"Show MineSweeper", "Show nearby elements", "Number factorization "};
         BiFunction<Integer, String, String> menuFormat = (idx, message) -> String.format("%s %d. %s", "\t", idx + 1, message);
 
         IntStream.range(0, menu.length)

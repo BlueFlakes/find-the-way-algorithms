@@ -15,6 +15,10 @@ public class UserInterface {
         System.out.println(message);
     }
 
+    public void print(String message) {
+        System.out.print(message);
+    }
+
     public void showGameMap(char[][] gameMap) {
         Arrays.stream(gameMap)
                 .forEach(System.out::println);
