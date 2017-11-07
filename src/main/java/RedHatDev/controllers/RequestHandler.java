@@ -13,7 +13,7 @@ public class RequestHandler {
     public void run( ) {
         Optional<Integer> userInput;
         String question = "Dear user please deliver your choice: ";
-        Predicate<Integer> userInputInBounds = n -> n > 0 && n <= 3;
+        Predicate<Integer> userInputInBounds = n -> n > 0 && n <= 4;
         int defaultValue = 0;
 
         do {
@@ -39,6 +39,9 @@ public class RequestHandler {
             case 3:
                 runNumberFactorization();
                 break;
+            case 4:
+                runShortestPathController();
+                break;
         }
     }
 
@@ -58,8 +61,13 @@ public class RequestHandler {
         controller.run();
     }
 
+    private void runShortestPathController() {
+        ShortestPathController controller = new ShortestPathController();
+        controller.run();
+    }
+
     private void showAvailablePossibilities() {
-        final String[] menu = new String[] {"Show MineSweeper", "Show nearby elements", "Number factorization "};
+        final String[] menu = new String[] {"Show MineSweeper", "Show nearby elements", "Number factorization", "ShortestPathFinder"};
         BiFunction<Integer, String, String> menuFormat = (idx, message) -> String.format("%s %d. %s", "\t", idx + 1, message);
 
         IntStream.range(0, menu.length)

@@ -1,34 +1,97 @@
 package RedHatDev.controllers;
 
+import RedHatDev.abstraction.ShortestPathTools;
 import RedHatDev.exceptions.CustomInvalidArgumentException;
+import RedHatDev.models.Collections;
+import RedHatDev.models.Dijkstra;
+import RedHatDev.models.Graph;
+import RedHatDev.models.Node;
 import RedHatDev.views.UserInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 
-public class SHPcontroller {
+public class ShortestPathController implements ShortestPathTools {
+
     private final UserInterface userInterface = new UserInterface();
     private final ValidateDataForAccumulator validator = new ValidateDataForAccumulator();
     private final String formatDelimiter = " ";
 
     public void run() {
+
         List<String[]> data = accumulateData();
 
+        String[] fromToData = withdrawStartAndTargetFromData(data);
+        Graph graph = new Graph(data);
+
+        String sourceFromName = getFromName.apply(fromToData);
+        String sourceToName = getToName.apply(fromToData);
+
+        try {
+            Node fromNode = graph.findNodeByName(sourceFromName);
+            Node toNode = graph.findNodeByName(sourceToName);
+
+            Dijkstra.calculateShortestPathFrom(fromNode);
+            if (toNode.getDistance() != Integer.MAX_VALUE) {
+                presentCalculations(toNode);
+            } else {
+                userInterface.println("Sorry no connection between.");
+            }
+        } catch (NoSuchElementException e) {
+            userInterface.println("Sorry but no found given source or target.");
+        }
+    }
+
+    private void presentCalculations(Node toNode) {
+        userInterface.println("Price = " + toNode.getDistance());
+        userInterface.print("Path: ");
+        userInterface.println(getPath(toNode));
+    }
+
+    private String[] withdrawStartAndTargetFromData(List<String[]> data) {
+        String[] fromToData = Collections.getLast(data).get();
+        data.remove(fromToData);
+
+        return fromToData;
+    }
+
+    private String getPath(Node toNode) {
+        List<String> path = toNode.getShortestPath().stream().map(Node::getName).collect(Collectors.toList());
+        path.add(toNode.getName());
+
+        return String.join(" -> ", path);
+    }
+
+    private List<String[]> loadSampleData() {
+        List<String> temp = new ArrayList<>();
+        temp.add("A B 10");
+        temp.add("A C 15");
+        temp.add("B D 12");
+        temp.add("B F 15");
+        temp.add("D F 1");
+        temp.add("F E 5");
+        temp.add("D E 2");
+        temp.add("C E 10");
+        temp.add("A E");
+
+        return temp.stream()
+                   .map(s -> s.split(formatDelimiter))
+                   .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
-        SHPcontroller shPcontroller = new SHPcontroller();
+        ShortestPathController shPcontroller = new ShortestPathController();
         shPcontroller.run();
     }
 
     private List<String[]> accumulateData() {
         final List<String[]> accumulator = new ArrayList<>();
+        boolean wasAccumulationSuccesfully;
         String clearedData;
 
         do {
@@ -36,9 +99,9 @@ public class SHPcontroller {
             String userChoice = userInterface.inputs.getChoice("Delivered format: ");
             clearedData = deleteRedundantBlankSpacesBetweenInputs(userChoice);
 
-            handleDataAccumulation(clearedData, accumulator);
+            wasAccumulationSuccesfully = handleDataAccumulation(clearedData, accumulator);
 
-        } while (!IsAccumulationFinished(clearedData));
+        } while (!IsAccumulationFinished(clearedData, wasAccumulationSuccesfully));
 
         return accumulator;
     }
@@ -51,8 +114,7 @@ public class SHPcontroller {
                      .collect(Collectors.joining(formatDelimiter));
     }
 
-    private void handleDataAccumulation(String userChoice, List<String[]> accumulator) {
-
+    private boolean handleDataAccumulation(String userChoice, List<String[]> accumulator) {
 
         try {
             validateGivenChoice(userChoice, accumulator);
@@ -61,9 +123,13 @@ public class SHPcontroller {
             accumulator.add(deliveredInputs);
             userInterface.println("Correct!\n");
 
+            return true;
+
         } catch (CustomInvalidArgumentException e) {
             String errorMessage = String.format("\nInvalid data provided | %s \n", e.getMessage());
             userInterface.println(errorMessage);
+
+            return false;
         }
     }
 
@@ -73,11 +139,11 @@ public class SHPcontroller {
         validator.isDeliveredInputCorrect(userChoice, accumulator);
     }
 
-    private boolean IsAccumulationFinished(String userChoice) {
+    private boolean IsAccumulationFinished(String userChoice, boolean wasAccumulationSuccesfully) {
         int fromToFormatAmountOfInputs = 2;
         int amountOfDeliveredInputs = userChoice.split(formatDelimiter).length;
 
-        return amountOfDeliveredInputs == fromToFormatAmountOfInputs;
+        return amountOfDeliveredInputs == fromToFormatAmountOfInputs && wasAccumulationSuccesfully;
     }
 
     private class ValidateDataForAccumulator {
@@ -85,9 +151,8 @@ public class SHPcontroller {
         private String userChoice;
         private String[] deliveredData;
         private List<String[]> accumulator;
-        private final int priceIndex = 2;
 
-        public void isDeliveredInputCorrect(String userChoice, List<String[]> accumulator)
+        void isDeliveredInputCorrect(String userChoice, List<String[]> accumulator)
                 throws CustomInvalidArgumentException {
 
             this.userChoice = userChoice;
@@ -102,17 +167,19 @@ public class SHPcontroller {
             if (!isChoiceDeliveredInExpectedFormat())
                 throw new CustomInvalidArgumentException("~ Invalid amount of inputs provided. Expected 2 or 3.");
 
+            if (!areDifferentFromNameAndToName())
+                throw new CustomInvalidArgumentException("~ From and To should be different.");
+
             if (!isAtLeastOneSignInEveryInput())
                 throw new CustomInvalidArgumentException("~ Expected at least one sign per input.");
 
             if (isThirdElementPresent()) {
                 if (!isThirdPriceCorrect())
                     throw new CustomInvalidArgumentException("~ Expected price as positive Integer");
+
+                if (!isGivenFromToSetupUnique())
+                    throw new CustomInvalidArgumentException("~ \"From-to\" setup should be unique");
             }
-
-            if (!isGivenFromToSetupUnique())
-                throw new CustomInvalidArgumentException("~ \"From-to\" setup should be unique");
-
         }
 
         private boolean isChoiceDeliveredInExpectedFormat() {
@@ -120,6 +187,10 @@ public class SHPcontroller {
             int deliveredDataAmount = this.deliveredData.length;
 
             return expectedAmountOfInputs.contains(deliveredDataAmount);
+        }
+
+        private boolean areDifferentFromNameAndToName() {
+            return !areEqual.test(getThisFromName(), getThisToName());
         }
 
         private boolean isAtLeastOneSignInEveryInput() {
@@ -141,33 +212,41 @@ public class SHPcontroller {
         }
 
         private boolean isThirdInputInteger() {
-            String price = this.deliveredData[priceIndex];
+            String price = getPrice();
             
             return UserInterface.isInteger(price);
         }
         
         private boolean isThirdInputPositiveNumber() {
-            int price = parseInt(this.deliveredData[priceIndex]);
+            int price = parseInt(getPrice());
             
             return price > 0;
         }
 
+        private String getPrice() {
+            return getPrice.apply(this.deliveredData);
+        }
+
+        private String getThisFromName() {
+            return getFromName.apply(this.deliveredData);
+        }
+
+        private String getThisToName() {
+            return getToName.apply(this.deliveredData);
+        }
+
         private boolean isGivenFromToSetupUnique() {
-            final int fromNameIndex = 0;
-            final int toNameIndex = 1;
 
-            Function<String[], String> getFromName = array -> array[fromNameIndex];
-            Function<String[], String> getToName = array -> array[toNameIndex];
-            BiPredicate<String, String> areEqual = String::equalsIgnoreCase;
-
-            String givenFromName = getFromName.apply(this.deliveredData);
-            String givenToName = getToName.apply(this.deliveredData);
+            String givenFromName = getThisFromName();
+            String givenToName = getThisToName();
 
             for (String[] record : this.accumulator) {
                 String foundFromName = getFromName.apply(record);
                 String foundToName = getToName.apply(record);
 
-                if (areEqual.test(givenFromName, foundFromName) && areEqual.test(givenToName, foundToName)) {
+                if ((areEqual.test(givenFromName, foundFromName) && areEqual.test(givenToName, foundToName))
+                        || areEqual.test(givenFromName, foundToName) && areEqual.test(givenToName, foundFromName)) {
+
                     return false;
                 }
             }

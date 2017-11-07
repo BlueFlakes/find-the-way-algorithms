@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-public class SHPAlgorithm {
+public class Dijkstra {
 
-    public static Graph calculateShortestPathFromSource(Graph graph, Node source) {
+    public static void calculateShortestPathFrom(Node source) {
         source.setDistance(0);
 
         Set<Node> settledNodes = new HashSet<>();
@@ -33,7 +33,7 @@ public class SHPAlgorithm {
 
             settledNodes.add(currentNode);
         }
-        return graph;
+
     }
 
     private static Node getLowestDistanceNode(Set < Node > unsettledNodes) {
