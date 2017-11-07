@@ -153,15 +153,15 @@ public class SHPcontroller {
         }
 
         private boolean isGivenFromToSetupUnique() {
-            final int fromIndex = 0;
-            final int toIndex = 1;
+            final int fromNameIndex = 0;
+            final int toNameIndex = 1;
 
-            String givenFromName = this.deliveredData[fromIndex];
-            String givenToName = this.deliveredData[toIndex];
-
-            Function<String[], String> getFromName = array -> array[fromIndex];
-            Function<String[], String> getToName = array -> array[toIndex];
+            Function<String[], String> getFromName = array -> array[fromNameIndex];
+            Function<String[], String> getToName = array -> array[toNameIndex];
             BiPredicate<String, String> areEqual = String::equalsIgnoreCase;
+
+            String givenFromName = getFromName.apply(this.deliveredData);
+            String givenToName = getToName.apply(this.deliveredData);
 
             for (String[] record : this.accumulator) {
                 String foundFromName = getFromName.apply(record);
